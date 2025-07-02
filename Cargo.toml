@@ -1,0 +1,42 @@
+[package]
+name = "MetaGuard"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# GUI
+eframe = "0.24"
+egui = "0.24"
+# システム
+sysinfo = "0.28"
+# 非同期処理
+tokio = { version = "1.28", features = ["full"] }
+# シリアライズ
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.7"
+# 時刻
+chrono = "0.4"
+# HTTP通信（Discord）
+reqwest = { version = "0.11", features = ["json", "blocking"] }
+# メール送信
+lettre = "0.10"
+# ログ
+log = "0.4"
+env_logger = "0.10"
+# Windowsサービス
+winreg = "0.50"
+# ファイルダイアログ
+rfd = "0.11"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winuser", "shellapi"] }
+
+
+
+[profile.release]
+opt-level = "z"     # サイズ最適化
+lto = true          # Link Time Optimization
+codegen-units = 1   # コード生成ユニットを1に
+strip = true        # デバッグシンボルを削除
+panic = "abort"     # パニック時の挙動を簡潔に
