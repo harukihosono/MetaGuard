@@ -95,7 +95,7 @@ fn first_run_setup() {
     
     // 設定ファイル作成
     println!("\n2. 設定ファイルを作成中...");
-    let mut config: HashMap<String, String> = HashMap::new();
+    let _config: HashMap<String, String> = HashMap::new();
     
     // MT4/MT5を自動検索
     println!("\n3. MT4/MT5を自動検索中...");
@@ -403,8 +403,11 @@ fn save_config(config: &HashMap<String, String>) {
     
     // AutoStartの値をON/OFF形式で保存
     content.push_str("; ● Windows自動起動: ON/OFF\n");
-    let auto_start = config.get("AutoStart").unwrap_or(&"1".to_string());
-    let auto_start_value = if auto_start == "1" { "ON" } else { "OFF" };
+    let auto_start_value = match config.get("AutoStart").map(|s| s.as_str()) {
+        Some("1") => "ON",
+        Some("0") => "OFF",
+        _ => "ON"
+    };
     content.push_str(&format!("AutoStart={}\n\n", auto_start_value));
     
     // MT4/MT5設定
