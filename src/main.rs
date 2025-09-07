@@ -249,32 +249,81 @@ fn save_initial_config(instances: &Vec<(String, String)>) {
     let mut content = String::new();
     
     // ヘッダー
-    content.push_str("; MetaGuard 設定ファイル\n");
-    content.push_str("; このファイルはメモ帳などのテキストエディタで編集できます\n");
-    content.push_str("; 設定を変更した後は、MetaGuardを再起動するか、メニューから再読み込みしてください\n\n");
+    content.push_str(";============================================================\n");
+    content.push_str(";          MetaGuard 設定ファイル (MetaGuard.ini)\n");
+    content.push_str(";============================================================\n");
+    content.push_str(";\n");
+    content.push_str("; ■ このファイルの編集方法\n");
+    content.push_str(";   1. メモ帳などのテキストエディタで開く\n");
+    content.push_str(";   2. 設定値を変更（= の右側の値を編集）\n");
+    content.push_str(";   3. ファイルを保存\n");
+    content.push_str(";   4. MetaGuardを再起動または設定を再読み込み\n");
+    content.push_str(";\n");
+    content.push_str("; ■ 注意事項\n");
+    content.push_str(";   - 行頭の「;」はコメント行です（この説明文）\n");
+    content.push_str(";   - 設定値は「=」の右側に記入します\n");
+    content.push_str(";   - パスにはバックスラッシュを2つ使用（例: C:\\\\Program Files\\\\）\n");
+    content.push_str(";\n");
+    content.push_str(";============================================================\n\n");
     
     // 基本設定セクション
-    content.push_str("[Settings]\n");
-    content.push_str("; チェック間隔（秒）: 10-300の範囲で設定\n");
-    content.push_str("CheckInterval=30\n");
-    content.push_str("; Windows起動時の自動実行: 1=有効, 0=無効\n");
-    content.push_str("AutoStart=1\n\n");
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("; ▼ 基本設定\n");
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("[Settings]\n\n");
+    
+    content.push_str("; ● MT4/MT5の監視間隔（単位：秒）\n");
+    content.push_str(";   設定可能範囲: 10～300秒\n");
+    content.push_str(";   推奨値:\n");
+    content.push_str(";     10  = 頻繁にチェック（システム負荷：高）\n");
+    content.push_str(";     30  = 標準設定（推奨）\n");
+    content.push_str(";     60  = ゆっくりチェック（システム負荷：低）\n");
+    content.push_str("CheckInterval=30\n\n");
+    
+    content.push_str("; ● Windows起動時の自動実行\n");
+    content.push_str(";   ON  = Windows起動時に自動でMetaGuardを起動\n");
+    content.push_str(";   OFF = 手動で起動\n");
+    content.push_str("AutoStart=ON\n\n");
     
     // MT4/MT5セクション
-    content.push_str("[MT4_MT5]\n");
-    content.push_str("; MT4/MT5の設定\n");
-    content.push_str("; 形式: MT_番号=有効フラグ|名前|実行ファイルのパス\n");
-    content.push_str("; 有効フラグ: 1=有効, 0=無効\n");
-    content.push_str("; 例: MT_1=1|MetaTrader 4|C:\\Program Files\\MetaTrader 4\\terminal.exe\n\n");
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("; ▼ MT4/MT5 監視対象リスト\n");
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("[MT4_MT5]\n\n");
+    
+    content.push_str("; ● 記入形式\n");
+    content.push_str(";   MT_番号=監視|表示名|実行ファイルのフルパス\n");
+    content.push_str(";\n");
+    content.push_str("; ● 各項目の説明\n");
+    content.push_str(";   監視    : ON=監視する、OFF=監視しない\n");
+    content.push_str(";   表示名  : MetaGuardで表示される名前（自由に設定可）\n");
+    content.push_str(";   パス    : terminal.exe または terminal64.exe のフルパス\n");
+    content.push_str(";\n");
+    content.push_str("; ● 記入例\n");
+    content.push_str(";   MT_1=ON|XM本番口座|C:\\\\Program Files\\\\XM MT4\\\\terminal.exe\n");
+    content.push_str(";   MT_2=ON|楽天証券MT4|C:\\\\Program Files\\\\RakutenMT4\\\\terminal64.exe\n");
+    content.push_str(";   MT_3=OFF|デモ口座（停止中）|D:\\\\MT4_Demo\\\\terminal.exe\n");
+    content.push_str(";\n\n");
     
     for (i, (name, path)) in instances.iter().enumerate() {
-        content.push_str(&format!("MT_{}=1|{}|{}\n", i + 1, name, path));
+        content.push_str(&format!("MT_{}=ON|{}|{}\n", i + 1, name, path));
     }
     
     if instances.is_empty() {
-        content.push_str("; MT4/MT5が見つかりませんでした。以下の形式で手動で追加してください：\n");
-        content.push_str("; MT_1=1|MetaTrader 4|C:\\Program Files\\MetaTrader 4\\terminal.exe\n");
+        content.push_str("; 【注意】自動検索でMT4/MT5が見つかりませんでした\n");
+        content.push_str(";  以下の例を参考に手動で追加してください：\n");
+        content.push_str(";\n");
+        content.push_str("; MT_1=ON|表示したい名前|実行ファイルのフルパス\n");
+        content.push_str(";\n");
+        content.push_str("; 例：\n");
+        content.push_str("; MT_1=ON|MetaTrader 4|C:\\\\Program Files\\\\MetaTrader 4\\\\terminal.exe\n");
+        content.push_str("; MT_2=ON|MetaTrader 5|C:\\\\Program Files\\\\MetaTrader 5\\\\terminal64.exe\n");
     }
+    
+    content.push_str("\n");
+    content.push_str(";============================================================\n");
+    content.push_str("; 設定ファイル終了\n");
+    content.push_str(";============================================================\n");
     
     if let Err(e) = fs::write(CONFIG_FILE, content) {
         eprintln!("設定ファイルの作成に失敗: {}", e);
@@ -296,7 +345,28 @@ fn load_or_create_config() -> HashMap<String, String> {
             // key=value の形式をパース
             if let Some(pos) = line.find('=') {
                 let key = line[..pos].trim().to_string();
-                let value = line[pos + 1..].trim().to_string();
+                let mut value = line[pos + 1..].trim().to_string();
+                
+                // ON/OFF形式と1/0形式の両方をサポート（互換性維持）
+                if key == "AutoStart" {
+                    value = match value.to_uppercase().as_str() {
+                        "ON" | "TRUE" | "1" => "1".to_string(),
+                        "OFF" | "FALSE" | "0" => "0".to_string(),
+                        _ => "1".to_string()
+                    };
+                } else if key.starts_with("MT_") {
+                    // MT_エントリの形式を変換
+                    let parts: Vec<&str> = value.split('|').collect();
+                    if parts.len() == 3 {
+                        let enabled = match parts[0].to_uppercase().as_str() {
+                            "ON" | "TRUE" | "1" => "1",
+                            "OFF" | "FALSE" | "0" => "0",
+                            _ => "1"
+                        };
+                        value = format!("{}|{}|{}", enabled, parts[1], parts[2]);
+                    }
+                }
+                
                 config.insert(key, value);
             }
         }
@@ -313,20 +383,38 @@ fn save_config(config: &HashMap<String, String>) {
     let mut content = String::new();
     
     // ヘッダー
-    content.push_str("; MetaGuard 設定ファイル\n");
-    content.push_str("; このファイルはメモ帳などのテキストエディタで編集できます\n\n");
+    content.push_str(";============================================================\n");
+    content.push_str(";          MetaGuard 設定ファイル (MetaGuard.ini)\n");
+    content.push_str(";============================================================\n");
+    content.push_str(";\n");
+    content.push_str("; ■ 編集方法: メモ帳で開いて編集 → 保存 → MetaGuard再起動\n");
+    content.push_str(";\n\n");
     
     // 基本設定
-    content.push_str("[Settings]\n");
-    content.push_str(&format!("CheckInterval={}\n", 
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("; ▼ 基本設定\n");
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("[Settings]\n\n");
+    
+    content.push_str("; ● 監視間隔（秒）: 10～300\n");
+    content.push_str(&format!("CheckInterval={}\n\n", 
         config.get("CheckInterval").unwrap_or(&"30".to_string())
     ));
-    content.push_str(&format!("AutoStart={}\n\n", 
-        config.get("AutoStart").unwrap_or(&"1".to_string())
-    ));
+    
+    // AutoStartの値をON/OFF形式で保存
+    content.push_str("; ● Windows自動起動: ON/OFF\n");
+    let auto_start = config.get("AutoStart").unwrap_or(&"1".to_string());
+    let auto_start_value = if auto_start == "1" { "ON" } else { "OFF" };
+    content.push_str(&format!("AutoStart={}\n\n", auto_start_value));
     
     // MT4/MT5設定
-    content.push_str("[MT4_MT5]\n");
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("; ▼ MT4/MT5 監視対象リスト\n");
+    content.push_str(";------------------------------------------------------------\n");
+    content.push_str("[MT4_MT5]\n\n");
+    
+    content.push_str("; 形式: MT_番号=監視|表示名|実行ファイルパス\n");
+    content.push_str("; 監視: ON=監視する、OFF=監視しない\n\n");
     
     let mut mt_entries: Vec<_> = config.iter()
         .filter(|(k, _)| k.starts_with("MT_"))
@@ -334,7 +422,14 @@ fn save_config(config: &HashMap<String, String>) {
     mt_entries.sort_by_key(|(k, _)| k.as_str());
     
     for (key, value) in mt_entries {
-        content.push_str(&format!("{}={}\n", key, value));
+        // MT_エントリの形式をON/OFF形式で保存
+        let parts: Vec<&str> = value.split('|').collect();
+        if parts.len() == 3 {
+            let enabled = if parts[0] == "1" { "ON" } else { "OFF" };
+            content.push_str(&format!("{}={}|{}|{}\n", key, enabled, parts[1], parts[2]));
+        } else {
+            content.push_str(&format!("{}={}\n", key, value));
+        }
     }
     
     let _ = fs::write(CONFIG_FILE, content);
