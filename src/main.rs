@@ -7,7 +7,7 @@ use chrono::Local;
 use std::collections::HashMap;
 
 const CONFIG_FILE: &str = "MetaGuard.ini";
-const VCRUNTIME_URL: &str = "https://aka.ms/vs/17/release/vc_redist.x64.exe";
+// Visual C++ランタイムは静的リンクされているため、URL定数は不要
 
 fn main() {
     println!("================================");
@@ -75,121 +75,37 @@ fn main() {
 
 fn first_run_setup() {
     println!("\n=== 初回セットアップ ===");
-    
-    // Visual C++ ランタイムチェック
-    println!("\n1. Visual C++ ランタイムをチェック中...");
-    if !check_vcruntime_installed() {
-        println!("   Visual C++ ランタイムがインストールされていません。");
-        print!("   今すぐインストールしますか？ (y/n): ");
-        io::stdout().flush().unwrap();
-        
-        let input = get_user_input();
-        if input.trim().to_lowercase() == "y" {
-            install_vcruntime();
-        } else {
-            println!("   スキップしました。後で手動でインストールしてください。");
-        }
-    } else {
-        println!("   ✓ Visual C++ ランタイムは既にインストールされています。");
-    }
-    
+
+    // Visual C++ランタイムは静的リンクされているため、チェック不要
+    println!("\n1. 実行環境を確認中...");
+    println!("   ✓ Visual C++ ランタイムは統合済みです（追加インストール不要）");
+
     // 設定ファイル作成
     println!("\n2. 設定ファイルを作成中...");
     let _config: HashMap<String, String> = HashMap::new();
-    
+
     // MT4/MT5を自動検索
     println!("\n3. MT4/MT5を自動検索中...");
     let instances = auto_search_mt4();
-    
+
     // 設定ファイルに書き込み
     save_initial_config(&instances);
-    
+
     println!("\n✓ 初回セットアップが完了しました！");
     println!("\n設定ファイル '{}' が作成されました。", CONFIG_FILE);
     println!("メモ帳などのテキストエディタで編集できます。");
-    
+
     println!("\nEnterキーを押して続行...");
     wait_for_enter();
 }
 
-fn check_vcruntime_installed() -> bool {
-    // レジストリをチェック
-    #[cfg(windows)]
-    {
-        use winreg::enums::*;
-        use winreg::RegKey;
-        
-        let paths = vec![
-            r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64",
-            r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x86",
-            r"SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64",
-        ];
-        
-        for path in paths {
-            if let Ok(hklm) = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey(path) {
-                if let Ok(installed) = hklm.get_value::<u32, _>("Installed") {
-                    if installed == 1 {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    
-    // DLLファイルの存在確認
-    let dll_paths = vec![
-        r"C:\Windows\System32\VCRUNTIME140.dll",
-        r"C:\Windows\SysWOW64\VCRUNTIME140.dll",
-    ];
-    
-    for path in dll_paths {
-        if std::path::Path::new(path).exists() {
-            return true;
-        }
-    }
-    
-    false
-}
+// Visual C++ランタイムのチェック関数は静的リンクにより不要
+// fn check_vcruntime_installed() -> bool { ... } // 削除済み
 
-fn install_vcruntime() {
-    println!("   Visual C++ ランタイムのインストーラーをダウンロード中...");
-    
-    // PowerShellを使用してダウンロード
-    let ps_command = format!(
-        "Start-BitsTransfer -Source '{}' -Destination 'vc_redist.x64.exe'",
-        VCRUNTIME_URL
-    );
-    
-    match std::process::Command::new("powershell")
-        .args(&["-Command", &ps_command])
-        .status()
-    {
-        Ok(status) if status.success() => {
-            println!("   ダウンロード完了。インストーラーを起動します...");
-            
-            // インストーラーを実行
-            match std::process::Command::new("vc_redist.x64.exe")
-                .arg("/install")
-                .arg("/passive")
-                .arg("/norestart")
-                .status()
-            {
-                Ok(_) => {
-                    println!("   ✓ インストールが完了しました。");
-                    // 一時ファイルを削除
-                    let _ = fs::remove_file("vc_redist.x64.exe");
-                }
-                Err(e) => {
-                    println!("   インストーラーの実行に失敗: {}", e);
-                }
-            }
-        }
-        _ => {
-            println!("   ダウンロードに失敗しました。");
-            println!("   手動でインストールしてください: {}", VCRUNTIME_URL);
-        }
-    }
-}
+// Visual C++ランタイムのインストール関数群は静的リンクにより不要
+// fn install_vcruntime() { ... } // 削除済み
+// fn download_vcruntime_with_fallback() -> bool { ... } // 削除済み
+// fn try_manual_install() { ... } // 削除済み
 
 fn auto_search_mt4() -> Vec<(String, String)> {
     let mut instances = Vec::new();

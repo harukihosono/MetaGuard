@@ -3,6 +3,10 @@ name = "MetaGuard"
 version = "0.1.0"
 edition = "2021"
 
+[build-dependencies]
+# Visual C++ランタイムを静的リンク（DLL不要化）
+static_vcruntime = "2.0"
+
 [dependencies]
 # システム情報
 sysinfo = "0.28"

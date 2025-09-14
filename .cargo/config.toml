@@ -1,0 +1,23 @@
+# Rust ビルド設定
+# Visual C++ランタイムを静的リンクし、DLLの依存を削除
+
+[target.x86_64-pc-windows-msvc]
+# MSVCランタイムを静的リンク（vcruntime140.dll不要）
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.i686-pc-windows-msvc]
+# 32bit版も同様に静的リンク
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# 全てのWindows MSVCターゲットに適用（より汎用的な設定）
+[target.'cfg(all(windows, target_env = "msvc"))']
+rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=/NODEFAULTLIB:msvcrt"]
+
+[profile.release]
+# リリースビルドの最適化
+opt-level = "z"          # サイズ最適化
+lto = true               # Link Time Optimization
+codegen-units = 1        # コード生成ユニットを1に
+strip = true             # デバッグシンボルを削除
+panic = "abort"          # パニック時の挙動を簡潔に
+overflow-checks = false  # オーバーフローチェックを無効化（パフォーマンス向上）
