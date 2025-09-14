@@ -44,8 +44,7 @@ ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
 
 ; 権限設定
-PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
+PrivilegesRequired=admin
 
 ; バージョン情報
 VersionInfoVersion={#MyAppVersion}
