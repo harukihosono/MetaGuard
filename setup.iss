@@ -61,7 +61,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
-Name: "autostart"; Description: "Windows起動時に自動的にMetaGuardを起動する"; GroupDescription: "起動オプション:"; Flags: unchecked
+Name: "autostart"; Description: "Windows起動時に自動的にMetaGuardを起動する"; GroupDescription: "起動オプション:"; Flags: checkedonce
 
 [Files]
 ; メインプログラム（静的リンク済み）

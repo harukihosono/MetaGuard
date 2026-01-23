@@ -23,7 +23,7 @@ CheckInterval=30
 ; ● Windows起動時の自動実行
 ;   ON  = 自動起動する
 ;   OFF = 手動起動
-AutoStart=OFF
+AutoStart=ON
 
 [MT4_MT5]
 

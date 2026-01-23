@@ -839,7 +839,7 @@ fn remove_auto_start() -> Result<(), Box<dyn std::error::Error>> {
         
         let hkcu = RegKey::predef(HKEY_CURRENT_USER);
         let path = r"Software\Microsoft\Windows\CurrentVersion\Run";
-        let key = hkcu.open_subkey_with_flags(path, KEY_ALL_ACCESS)?;
+        let key = hkcu.open_subkey_with_flags(path, KEY_SET_VALUE)?;
         
         key.delete_value("MetaGuard")?;
     }
