@@ -4,7 +4,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(cargo build:*)"
+      "Bash(cargo build:*)",
+      "Bash(gh release list:*)",
+      "Bash(\"C:\\\\Program Files \\(x86\\)\\\\Inno Setup 6\\\\ISCC.exe\" setup.iss)"
     ],
     "deny": [],
     "ask": []

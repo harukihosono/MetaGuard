@@ -3,7 +3,7 @@
 ; このファイルをInno Setupでコンパイルするとインストーラーが作成されます
 
 #define MyAppName "MetaGuard"
-#define MyAppVersion "0.2.0"
+#define MyAppVersion "0.3.0"
 #define MyAppPublisher "Haruki Hosono"
 #define MyAppURL "https://github.com/harukihosono/MetaGuard"
 #define MyAppExeName "MetaGuard.exe"
