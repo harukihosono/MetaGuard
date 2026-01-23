@@ -84,7 +84,7 @@ Source: "SECURITY_INFO.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "INSTALL_GUIDE.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 ; ドキュメント
-Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme
+Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
