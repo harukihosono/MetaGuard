@@ -21,7 +21,7 @@ winreg = "0.50"
 ctrlc = "3.4"
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3", features = ["winuser", "shellapi"] }
+winapi = { version = "0.3", features = ["winuser", "shellapi", "wincon", "processenv", "winbase"] }
 
 [profile.release]
 opt-level = "z"     # サイズ最適化

@@ -6,8 +6,58 @@ use std::io::{self, Write};
 use chrono::Local;
 use std::collections::HashMap;
 
-const CONFIG_FILE: &str = "MetaGuard.ini";
+const CONFIG_FILE_NAME: &str = "MetaGuard.ini";
 // Visual C++ランタイムは静的リンクされているため、URL定数は不要
+
+/// コンソールウィンドウを最小化して小さいサイズに設定
+#[cfg(windows)]
+fn minimize_and_resize_console() {
+    use winapi::um::wincon::{SetConsoleScreenBufferSize, SetConsoleWindowInfo, GetConsoleWindow, COORD, SMALL_RECT};
+    use winapi::um::processenv::GetStdHandle;
+    use winapi::um::winbase::STD_OUTPUT_HANDLE;
+    use winapi::um::winuser::{ShowWindow, SW_MINIMIZE};
+
+    unsafe {
+        // コンソールウィンドウのサイズを小さく設定
+        let handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if !handle.is_null() {
+            // ウィンドウサイズを小さくする (50x10)
+            let window_size = SMALL_RECT {
+                Left: 0,
+                Top: 0,
+                Right: 49,
+                Bottom: 9,
+            };
+            SetConsoleWindowInfo(handle, 1, &window_size);
+
+            // バッファサイズも設定
+            let buffer_size = COORD { X: 50, Y: 100 };
+            SetConsoleScreenBufferSize(handle, buffer_size);
+        }
+
+        // ウィンドウを最小化
+        let hwnd = GetConsoleWindow();
+        if !hwnd.is_null() {
+            ShowWindow(hwnd, SW_MINIMIZE);
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn minimize_and_resize_console() {
+    // Windows以外では何もしない
+}
+
+/// 実行ファイルのディレクトリを基準にした設定ファイルの絶対パスを取得
+fn get_config_path() -> std::path::PathBuf {
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            return exe_dir.join(CONFIG_FILE_NAME);
+        }
+    }
+    // フォールバック: カレントディレクトリ
+    std::path::PathBuf::from(CONFIG_FILE_NAME)
+}
 
 fn main() {
     println!("================================");
@@ -16,7 +66,8 @@ fn main() {
     println!("================================\n");
 
     // 初回起動チェック
-    if !std::path::Path::new(CONFIG_FILE).exists() {
+    let config_path = get_config_path();
+    if !config_path.exists() {
         println!("初回起動を検出しました。");
         first_run_setup();
     }
@@ -92,7 +143,7 @@ fn first_run_setup() {
     save_initial_config(&instances);
 
     println!("\n✓ 初回セットアップが完了しました！");
-    println!("\n設定ファイル '{}' が作成されました。", CONFIG_FILE);
+    println!("\n設定ファイル '{}' が作成されました。", get_config_path().display());
     println!("メモ帳などのテキストエディタで編集できます。");
 
     println!("\nEnterキーを押して続行...");
@@ -241,15 +292,15 @@ fn save_initial_config(instances: &Vec<(String, String)>) {
     content.push_str("; 設定ファイル終了\n");
     content.push_str(";============================================================\n");
     
-    if let Err(e) = fs::write(CONFIG_FILE, content) {
+    if let Err(e) = fs::write(get_config_path(), content) {
         eprintln!("設定ファイルの作成に失敗: {}", e);
     }
 }
 
 fn load_or_create_config() -> HashMap<String, String> {
     let mut config = HashMap::new();
-    
-    if let Ok(contents) = fs::read_to_string(CONFIG_FILE) {
+
+    if let Ok(contents) = fs::read_to_string(get_config_path()) {
         for line in contents.lines() {
             let line = line.trim();
             
@@ -351,16 +402,16 @@ fn save_config(config: &HashMap<String, String>) {
         }
     }
     
-    let _ = fs::write(CONFIG_FILE, content);
+    let _ = fs::write(get_config_path(), content);
 }
 
 fn open_config_file() {
     println!("\n設定ファイルを開いています...");
-    
+
     #[cfg(windows)]
     {
         match std::process::Command::new("notepad.exe")
-            .arg(CONFIG_FILE)
+            .arg(get_config_path())
             .spawn()
         {
             Ok(_) => {
@@ -448,10 +499,13 @@ fn monitoring_mode(config: &HashMap<String, String>) {
 }
 
 fn auto_monitoring_mode(config: &HashMap<String, String>) {
+    // ウィンドウを最小化して小さいサイズに設定
+    minimize_and_resize_console();
+
     let interval = config.get("CheckInterval")
         .and_then(|s| s.parse::<u64>().ok())
         .unwrap_or(30);
-    
+
     loop {
         check_and_restart_mt4(config);
         thread::sleep(Duration::from_secs(interval));
